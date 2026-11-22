@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Player Dashboard | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section-alt border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                {% if player.photo_path %}
+                    <img src="{{ url_for('serve_gallery', filename=player.photo_path) }}" alt="{{ player.full_name }}"
+                         class="rounded-circle object-fit-cover" style="width: 78px; height: 78px; border: 3px solid var(--jk-gold);">
+                {% else %}
+                    <div class="rounded-circle bg-white d-flex align-items-center justify-content-center"
+                         style="width: 78px; height: 78px; border: 3px solid var(--jk-gold);">
+                        <i class="bi bi-person-fill fs-1 text-secondary"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <h2 class="mb-1">Welcome, {{ player.full_name }}</h2>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="badge bg-dark text-warning">JKTTA ID: {{ player.registration_id or 'Assigned on Approval' }}</span>
+                        <span class="badge {% if player.approval_status == 'APPROVED' %}bg-success{% elif player.approval_status == 'REJECTED' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                            Status: {{ player.approval_status }}
+                        </span>
+                        <span class="small text-muted">{{ player.district.name }} &bull; {{ player.playing_category }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('edit_player_profile') }}" class="btn btn-jk-navy btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i>Edit Profile
+                </a>
+                <button onclick="window.print()" class="btn btn-jk-gold btn-sm">
+                    <i class="bi bi-printer-fill me-1"></i>Print ID Card
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-3" style="max-width: 380px;">
+            <div class="d-flex justify-content-between small mb-1">
+                <span>Profile Completion</span>
+                <strong>{{ completion_pct }}%</strong>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" style="width: {{ completion_pct }}%;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="jk-section">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Digital JKTTA Athlete ID Card -->
+            <div class="col-lg-4">
+                <div class="jk-card p-4 text-white" style="background: linear-gradient(135deg, #071426, #14325B); border: 2px solid var(--jk-gold);">
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3">
+                        <strong class="text-warning">{{ jktta.SHORT_NAME }} ATHLETE ID</strong>
+                        <span class="badge bg-warning text-dark">{{ player.playing_category }}</span>
+                    </div>
+                    <h5 class="mb-1">{{ player.full_name }}</h5>
+                    <div class="text-warning fw-bold mb-2">{{ player.registration_id or 'PENDING APPROVAL' }}</div>
+                    <div class="small text-white-50">
+                        District: {{ player.district.name }}<br>
+                        Club: {{ player.club.name if player.club else 'Independent' }}<br>
+                        DOB: {{ player.date_of_birth.strftime('%d %b %Y') }} ({{ player.gender }})
+                    </div>
+                </div>
+
+                <div class="jk-card p-3 mt-4">
+                    <h5 class="mb-3">Notifications</h5>
+                    {% for n in notifications %}
+                        <div class="border-bottom pb-2 mb-2 small">
+                            <strong>{{ n.title }}</strong>
+                            <div class="text-muted">{{ n.message }}</div>
+                        </div>
+                    {% else %}
+                        <p class="small text-muted mb-0">No notifications yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Tournament Entries & Assigned Back Numbers -->
+            <div class="col-lg-8">
+                <div class="jk-card p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">My Tournament Entries &amp; Back Numbers</h4>
+                        <a href="{{ url_for('tournaments_list') }}" class="btn btn-sm btn-jk-gold">Browse Tournaments</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tournament</th>
+                                    <th>Category</th>
+                                    <th>JKTTA ID</th>
+                                    <th>Back No.</th>
+                                    <th>Status</th>
+                                    <th>Roster Excel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td>{{ reg.tournament.title }}</td>
+                                    <td>{{ reg.category.name }}</td>
+                                    <td class="fw-semibold">{{ player.registration_id }}</td>
+                                    <td><span class="badge bg-warning text-dark">#{{ reg.back_number }}</span></td>
+                                    <td>{{ reg.status }}</td>
+                                    <td>
+                                        <a href="{{ url_for('download_tournament_excel', tournament_id=reg.tournament_id) }}"
+                                           class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-file-earmark-excel"></i> .xlsx
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="6" class="text-center text-muted py-3">You have not registered for any tournaments yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="jk-card p-4">
+                    <h4 class="mb-3">Current Rankings</h4>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Category</th><th>Rank</th><th>Elo Rating</th><th>Association Points</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for r in rankings %}
+                                <tr>
+                                    <td>{{ r.category }}</td>
+                                    <td>#{{ r.rank_position or '-' }}</td>
+                                    <td class="fw-bold text-primary">{{ r.elo_rating|round(0)|int }}</td>
+                                    <td>{{ r.association_points }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center text-muted py-3">No rankings recorded yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

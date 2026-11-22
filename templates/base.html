@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ jktta.SHORT_NAME }} | {{ jktta.ORG_NAME }}{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --jk-navy-dark: #071426;
+            --jk-navy: #0B1F3A;
+            --jk-navy-light: #14325B;
+            --jk-gold: #D4AF37;
+            --jk-gold-hover: #B8941F;
+            --jk-white: #FFFFFF;
+            --jk-bg-light: #F4F6F9;
+            --jk-text-dark: #1A2332;
+            --jk-text-muted: #5A677D;
+            --jk-border: #E2E8F0;
+            --jk-radius: 12px;
+            --jk-shadow-sm: 0 4px 12px rgba(11, 31, 58, 0.06);
+            --jk-shadow-md: 0 12px 28px rgba(11, 31, 58, 0.12);
+            --jk-transition: all 0.25s ease;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--jk-text-dark);
+            background-color: var(--jk-white);
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6, .navbar-brand { font-family: 'Outfit', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+        .jk-topbar {
+            background-color: var(--jk-navy-dark);
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+        }
+        .jk-navbar {
+            background-color: var(--jk-navy);
+            box-shadow: 0 4px 20px rgba(7, 20, 38, 0.25);
+            padding: 0.7rem 0;
+        }
+        .jk-brand-emblem {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--jk-gold), #F3D46E);
+            color: var(--jk-navy-dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .jk-navbar .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            font-size: 0.93rem;
+            padding: 0.5rem 0.85rem !important;
+            border-radius: 8px;
+            transition: var(--jk-transition);
+        }
+        .jk-navbar .nav-link:hover, .jk-navbar .nav-link.active {
+            color: var(--jk-gold) !important;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        .btn-jk-gold {
+            background-color: var(--jk-gold);
+            color: var(--jk-navy-dark);
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.35rem;
+            transition: var(--jk-transition);
+        }
+        .btn-jk-gold:hover { background-color: var(--jk-gold-hover); color: var(--jk-navy-dark); transform: translateY(-2px); }
+        .btn-jk-navy {
+            background-color: var(--jk-navy);
+            color: var(--jk-white);
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.35rem;
+            transition: var(--jk-transition);
+        }
+        .btn-jk-navy:hover { background-color: var(--jk-navy-light); color: var(--jk-white); }
+        .btn-jk-outline-light {
+            border: 1.5px solid rgba(255, 255, 255, 0.72);
+            color: var(--jk-white);
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.35rem;
+            transition: var(--jk-transition);
+        }
+        .btn-jk-outline-light:hover { background-color: var(--jk-white); color: var(--jk-navy); }
+        .jk-hero {
+            min-height: 560px;
+            background:
+                linear-gradient(105deg, rgba(7, 20, 38, 0.95) 0%, rgba(11, 31, 58, 0.85) 55%, rgba(11, 31, 58, 0.56) 100%),
+                url('https://images.unsplash.com/photo-1534158914592-062992fbe900?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            color: var(--jk-white);
+            display: flex;
+            align-items: center;
+            padding: 4.75rem 0 6.25rem;
+        }
+        .jk-badge-gold {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background-color: rgba(212, 175, 55, 0.16);
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            color: var(--jk-gold);
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 0.38rem 0.95rem;
+            border-radius: 50px;
+        }
+        .jk-stats-wrapper { margin-top: -3.5rem; position: relative; z-index: 10; }
+        .jk-stat-card {
+            background: var(--jk-white);
+            border: 1px solid var(--jk-border);
+            border-top: 4px solid var(--jk-gold);
+            border-radius: var(--jk-radius);
+            padding: 1.45rem 1.2rem;
+            box-shadow: var(--jk-shadow-md);
+            transition: var(--jk-transition);
+            height: 100%;
+        }
+        .jk-stat-card:hover { transform: translateY(-4px); }
+        .jk-stat-number { font-family: 'Outfit', sans-serif; font-size: 2.15rem; font-weight: 800; color: var(--jk-navy); line-height: 1.1; }
+        .jk-section { padding: 4.25rem 0; }
+        .jk-section-alt { background-color: var(--jk-bg-light); padding: 4.25rem 0; }
+        .jk-section-eyebrow {
+            color: var(--jk-gold-hover);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+        .jk-section-title { color: var(--jk-navy); font-size: 1.95rem; margin-bottom: 0.65rem; }
+        .jk-divider {
+            width: 58px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--jk-gold), var(--jk-navy));
+            border-radius: 2px;
+            margin-bottom: 1.4rem;
+        }
+        .jk-card {
+            background: var(--jk-white);
+            border: 1px solid var(--jk-border);
+            border-radius: var(--jk-radius);
+            box-shadow: var(--jk-shadow-sm);
+            transition: var(--jk-transition);
+            overflow: hidden;
+            height: 100%;
+        }
+        .jk-card:hover { transform: translateY(-4px); box-shadow: var(--jk-shadow-md); border-color: rgba(212, 175, 55, 0.55); }
+        .jk-empty-state {
+            background-color: var(--jk-white);
+            border: 1.5px dashed #CBD5E1;
+            border-radius: var(--jk-radius);
+            padding: 2.15rem 1.4rem;
+            text-align: center;
+            color: var(--jk-text-muted);
+        }
+        .jk-cta-banner {
+            background: linear-gradient(135deg, var(--jk-navy-dark) 0%, var(--jk-navy-light) 100%);
+            border-radius: 16px;
+            color: var(--jk-white);
+            padding: 3.25rem 2.25rem;
+            border: 1px solid rgba(212, 175, 55, 0.32);
+        }
+        .jk-footer {
+            background-color: var(--jk-navy-dark);
+            color: rgba(255, 255, 255, 0.78);
+            padding-top: 3.75rem;
+            border-top: 4px solid var(--jk-gold);
+        }
+        .jk-footer h5 { color: var(--jk-white); font-size: 1.05rem; margin-bottom: 1.15rem; }
+        .jk-footer a { color: rgba(255, 255, 255, 0.75); text-decoration: none; transition: var(--jk-transition); }
+        .jk-footer a:hover { color: var(--jk-gold); padding-left: 4px; }
+        .jk-footer-bottom { background-color: #040C18; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.85rem; }
+        @media (max-width: 767.98px) {
+            .jk-hero { min-height: 460px; padding: 3.5rem 0 5.25rem; }
+            .jk-hero h1 { font-size: 2rem; }
+            .jk-stat-number { font-size: 1.7rem; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <div class="jk-topbar py-2 d-none d-md-block">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-4">
+                <span><i class="bi bi-envelope-fill text-warning me-1"></i> {{ jktta.CONTACT_EMAIL }}</span>
+                <span><i class="bi bi-telephone-fill text-warning me-1"></i> {{ jktta.CONTACT_PHONE }}</span>
+            </div>
+            <div>
+                <span class="text-white-50">Official State Table Tennis Federation Portal</span>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark jk-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('home') }}">
+                <span class="jk-brand-emblem"><i class="bi bi-trophy-fill"></i></span>
+                <div class="d-flex flex-column lh-1">
+                    <span class="fs-4 text-white fw-bold">{{ jktta.SHORT_NAME }}</span>
+                    <small class="text-warning fw-normal" style="font-size: 0.67rem; letter-spacing: 0.05em;">
+                        JAMMU &amp; KASHMIR TABLE TENNIS
+                    </small>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#jkMainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="jkMainNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">About</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint in ['players_directory', 'player_detail'] %}active{% endif %}" href="{{ url_for('players_directory') }}">Players</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint in ['tournaments_list', 'tournament_detail'] %}active{% endif %}" href="{{ url_for('tournaments_list') }}">Tournaments</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'rankings_page' %}active{% endif %}" href="{{ url_for('rankings_page') }}">Rankings</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'results_page' %}active{% endif %}" href="{{ url_for('results_page') }}">Results</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint in ['news_list', 'news_detail'] %}active{% endif %}" href="{{ url_for('news_list') }}">News</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'gallery_page' %}active{% endif %}" href="{{ url_for('gallery_page') }}">Gallery</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'contact_page' %}active{% endif %}" href="{{ url_for('contact_page') }}">Contact</a></li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.player_profile %}
+                            <a href="{{ url_for('player_dashboard') }}" class="btn btn-sm btn-jk-outline-light">
+                                <i class="bi bi-person-badge me-1"></i>My Dashboard
+                            </a>
+                        {% endif %}
+                        <form method="post" action="{{ url_for('logout') }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-jk-gold">Logout</button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-jk-outline-light">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Member Login
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-sm btn-jk-gold">
+                            <i class="bi bi-person-plus-fill me-1"></i>Player Registration
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container mt-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="jk-footer">
+        <div class="container pb-5">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="jk-brand-emblem"><i class="bi bi-trophy-fill"></i></span>
+                        <span class="fs-4 text-white fw-bold">{{ jktta.SHORT_NAME }}</span>
+                    </div>
+                    <p class="small">
+                        {{ jktta.ORG_NAME }} — Promoting competitive table tennis, transparent player rankings,
+                        and district-level talent development across Jammu &amp; Kashmir.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="{{ url_for('home') }}">Home</a></li>
+                        <li><a href="#about-jktta">About Association</a></li>
+                        <li><a href="#tournaments-preview">Tournaments</a></li>
+                        <li><a href="#rankings-preview">Rankings</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Athlete &amp; Media</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="{{ url_for('login') }}">Member &amp; Admin Login</a></li>
+                        <li><a href="#results-preview">Match Results</a></li>
+                        <li><a href="#news-preview">News &amp; Circulars</a></li>
+                        <li><a href="#gallery-preview">Photo Gallery</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Secretariat</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li class="d-flex gap-2"><i class="bi bi-geo-alt-fill text-warning mt-1"></i><span>{{ jktta.OFFICE_ADDRESS }}</span></li>
+                        <li class="d-flex gap-2"><i class="bi bi-envelope-fill text-warning mt-1"></i><span>{{ jktta.CONTACT_EMAIL }}</span></li>
+                        <li class="d-flex gap-2"><i class="bi bi-telephone-fill text-warning mt-1"></i><span>{{ jktta.CONTACT_PHONE }}</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+       <div class="jk-footer-bottom py-3">
+            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <span>&copy; {{ current_year }} Tech Nova. All rights reserved.</span>
+                <span class="text-white-50">JKTTA Sports Management Platform</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".alert-dismissible:not(.alert-danger)").forEach(function (el) {
+                setTimeout(function () {
+                    bootstrap.Alert.getOrCreateInstance(el).close();
+                }, 5000);
+            });
+            document.querySelectorAll("[data-count-target]").forEach(function (counter) {
+                const target = parseInt(counter.getAttribute("data-count-target"), 10) || 0;
+                if (target <= 0) { counter.textContent = "0"; return; }
+                let current = 0;
+                const step = Math.max(1, Math.ceil(target / 40));
+                const timer = setInterval(function () {
+                    current += step;
+                    if (current >= target) {
+                        counter.textContent = target.toLocaleString("en-IN");
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = current.toLocaleString("en-IN");
+                    }
+                }, 25);
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

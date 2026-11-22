@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Registered Players | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section-alt border-bottom">
+    <div class="container">
+        <span class="jk-section-eyebrow">Official Athlete Registry</span>
+        <h1 class="jk-section-title">Approved JKTTA Players</h1>
+        <div class="jk-divider"></div>
+
+        <form method="get" class="row g-2 mt-3">
+            <div class="col-md-3">
+                <input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="Search name or JKTTA ID...">
+            </div>
+            <div class="col-md-2">
+                <select name="district" class="form-select">
+                    <option value="">All Districts</option>
+                    {% for d in districts %}
+                    <option value="{{ d.id }}" {% if filters.district == d.id %}selected{% endif %}>{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="club" class="form-select">
+                    <option value="">All Clubs</option>
+                    {% for c in clubs %}
+                    <option value="{{ c.id }}" {% if filters.club == c.id %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if filters.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="gender" class="form-select">
+                    <option value="">All Genders</option>
+                    <option value="MALE" {% if filters.gender == 'MALE' %}selected{% endif %}>Male</option>
+                    <option value="FEMALE" {% if filters.gender == 'FEMALE' %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-jk-navy">Filter</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="jk-section">
+    <div class="container">
+        {% if players %}
+            <div class="row g-4">
+                {% for p in players %}
+                <div class="col-sm-6 col-lg-3">
+                    <div class="jk-card p-3 text-center">
+                        {% if p.photo_path %}
+                            <img src="{{ url_for('serve_gallery', filename=p.photo_path) }}" alt="{{ p.full_name }}"
+                                 class="rounded-circle mb-3 object-fit-cover" style="width: 96px; height: 96px; border: 3px solid var(--jk-gold);">
+                        {% else %}
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 96px; height: 96px; border: 3px solid var(--jk-gold);">
+                                <i class="bi bi-person-fill fs-1 text-secondary"></i>
+                            </div>
+                        {% endif %}
+                        <div class="badge bg-dark text-warning mb-2">{{ p.registration_id or 'ID Pending' }}</div>
+                        <h5 class="mb-1">{{ p.full_name }}</h5>
+                        <div class="small text-muted mb-2">{{ p.district.name }} &bull; {{ p.playing_category }}</div>
+                        <a href="{{ url_for('player_detail', player_id=p.id) }}" class="btn btn-sm btn-jk-navy w-100">View Profile</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="jk-empty-state">No approved players match the selected filters.</div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
