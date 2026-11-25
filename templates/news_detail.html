@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }} | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section">
+    <div class="container" style="max-width: 820px;">
+        <span class="badge bg-warning text-dark mb-2">{{ article.category_name }}</span>
+        <h1 class="jk-section-title">{{ article.title }}</h1>
+        <p class="small text-muted mb-4">Published on {{ article.published_at.strftime('%d %B %Y') }}</p>
+        {% if article.featured_image %}
+            <img src="{{ url_for('serve_gallery', filename=article.featured_image) }}" alt="{{ article.title }}" class="img-fluid rounded-4 mb-4">
+        {% endif %}
+        <div class="jk-card p-4">
+            <p class="lead">{{ article.summary }}</p>
+            <hr>
+            <div style="white-space: pre-line;">{{ article.content }}</div>
+        </div>
+        <a href="{{ url_for('news_list') }}" class="btn btn-jk-navy mt-4">&larr; Back to News</a>
+    </div>
+</section>
+{% endblock %}

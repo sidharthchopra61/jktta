@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}News & Announcements | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section-alt border-bottom">
+    <div class="container">
+        <span class="jk-section-eyebrow">Press &amp; Circulars</span>
+        <h1 class="jk-section-title">News &amp; Announcements</h1>
+        <div class="jk-divider"></div>
+        <form method="get" class="row g-2">
+            <div class="col-md-4"><input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="Search headlines..."></div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for c in categories %}
+                    <option value="{{ c }}" {% if filters.category == c %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2"><button type="submit" class="btn btn-jk-navy w-100">Search</button></div>
+        </form>
+    </div>
+</section>
+
+<section class="jk-section">
+    <div class="container">
+        {% if articles %}
+            <div class="row g-4">
+                {% for a in articles %}
+                <div class="col-md-4">
+                    <div class="jk-card p-4 d-flex flex-column">
+                        <span class="badge bg-warning text-dark align-self-start mb-2">{{ a.category_name }}</span>
+                        <h5>{{ a.title }}</h5>
+                        <p class="small text-muted flex-grow-1">{{ a.summary }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-muted">{{ a.published_at.strftime('%d %b %Y') }}</small>
+                            <a href="{{ url_for('news_detail', slug=a.slug) }}" class="btn btn-sm btn-jk-navy">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="jk-empty-state">No published news articles or circulars yet.</div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ player.full_name }} ({{ player.registration_id }}) | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section">
+    <div class="container">
+        <div class="jk-card p-4 mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-md-2 text-center">
+                    {% if player.photo_path %}
+                        <img src="{{ url_for('serve_gallery', filename=player.photo_path) }}" alt="{{ player.full_name }}"
+                             class="rounded-circle object-fit-cover" style="width: 120px; height: 120px; border: 4px solid var(--jk-gold);">
+                    {% else %}
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center"
+                             style="width: 120px; height: 120px; border: 4px solid var(--jk-gold);">
+                            <i class="bi bi-person-fill display-4 text-secondary"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-10">
+                    <span class="badge bg-dark text-warning fs-6 mb-2">Permanent JKTTA ID: {{ player.registration_id }}</span>
+                    <h2 class="mb-1">{{ player.full_name }}</h2>
+                    <p class="text-muted mb-0">
+                        District: <strong>{{ player.district.name }}</strong> &bull;
+                        Club: <strong>{{ player.club.name if player.club else 'Independent' }}</strong> &bull;
+                        Category: <strong>{{ player.playing_category }}</strong> &bull;
+                        Style: <strong>{{ player.playing_hand }} ({{ player.playing_style }})</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h4>Official Rankings</h4>
+                <div class="jk-card p-3">
+                    <table class="table mb-0">
+                        <thead><tr><th>Category</th><th>Rank</th><th>Elo</th><th>Points</th></tr></thead>
+                        <tbody>
+                            {% for r in rankings %}
+                            <tr>
+                                <td>{{ r.category }}</td>
+                                <td>#{{ r.rank_position or '-' }}</td>
+                                <td class="fw-bold">{{ r.elo_rating|round(0)|int }}</td>
+                                <td>{{ r.association_points }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-muted">No ranking record yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <h4>Tournament Entries &amp; Assigned Back Numbers</h4>
+                <div class="jk-card p-3">
+                    <table class="table mb-0">
+                        <thead><tr><th>Tournament</th><th>Category</th><th>Back No.</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for entry in tournament_entries %}
+                            <tr>
+                                <td>{{ entry.tournament.title }}</td>
+                                <td>{{ entry.category.name }}</td>
+                                <td><span class="badge bg-warning text-dark">#{{ entry.back_number }}</span></td>
+                                <td>{{ entry.status }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-muted">No tournament entries recorded yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

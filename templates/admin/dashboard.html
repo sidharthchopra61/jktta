@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section-alt border-bottom py-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="jk-badge-gold mb-1">Executive Control Center</span>
+                <h2 class="mb-0">JKTTA Administrative Dashboard</h2>
+            </div>
+            <span class="badge bg-dark text-warning fs-6">{{ current_user.role }}</span>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-6 col-md-2">
+                <div class="jk-card p-3 text-center">
+                    <div class="fs-4 fw-bold text-primary">{{ stats.total_players }}</div>
+                    <div class="small text-muted">Total Players</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="jk-card p-3 text-center">
+                    <div class="fs-4 fw-bold text-success">{{ stats.approved_players }}</div>
+                    <div class="small text-muted">Approved</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="jk-card p-3 text-center">
+                    <div class="fs-4 fw-bold text-warning">{{ stats.pending_players }}</div>
+                    <div class="small text-muted">Pending</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="jk-card p-3 text-center">
+                    <div class="fs-4 fw-bold text-dark">{{ stats.districts }}</div>
+                    <div class="small text-muted">Districts</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="jk-card p-3 text-center">
+                    <div class="fs-4 fw-bold text-dark">{{ stats.clubs }}</div>
+                    <div class="small text-muted">Clubs</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="jk-card p-3 text-center">
+                    <div class="fs-4 fw-bold text-dark">{{ stats.tournaments }}</div>
+                    <div class="small text-muted">Tournaments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="jk-section py-4">
+    <div class="container">
+        <ul class="nav nav-pills mb-4 gap-2" id="adminTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-players" type="button">Players ({{ stats.pending_players }} Pending)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-districts" type="button">Districts &amp; Clubs</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tournaments" type="button">Tournaments &amp; Fixtures</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-matches" type="button">Match Scoring &amp; Elo</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-media" type="button">News &amp; Gallery</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-settings" type="button">Secretariat Settings</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- TAB 1: PLAYERS APPROVAL -->
+            <div class="tab-pane fade show active" id="tab-players">
+                <div class="jk-card p-4 mb-4">
+                    <h5 class="mb-3">Pending Player Applications</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Name</th><th>District</th><th>Category</th><th>DOB</th><th>Document</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for p in pending_players %}
+                                <tr>
+                                    <td class="fw-semibold">{{ p.full_name }}</td>
+                                    <td>{{ p.district.name }}</td>
+                                    <td>{{ p.playing_category }}</td>
+                                    <td>{{ p.date_of_birth }}</td>
+                                    <td>
+                                        {% if p.document_path %}
+                                            <a href="{{ url_for('serve_gallery', filename=p.document_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Doc</a>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="action" value="approve_player">
+                                            <input type="hidden" name="player_id" value="{{ p.id }}">
+                                            <button class="btn btn-sm btn-success">Approve &amp; Issue JKTTA ID</button>
+                                        </form>
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="action" value="reject_player">
+                                            <input type="hidden" name="player_id" value="{{ p.id }}">
+                                            <button class="btn btn-sm btn-outline-danger">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="6" class="text-muted text-center py-3">No pending applications.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="jk-card p-4">
+                    <h5 class="mb-3">Registered Players Directory</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Permanent JKTTA ID</th><th>Name</th><th>District</th><th>Club</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for p in all_players %}
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ p.registration_id or 'Pending' }}</td>
+                                    <td>{{ p.full_name }}</td>
+                                    <td>{{ p.district.name }}</td>
+                                    <td>{{ p.club.name if p.club else 'Independent' }}</td>
+                                    <td><span class="badge {% if p.approval_status == 'APPROVED' %}bg-success{% else %}bg-secondary{% endif %}">{{ p.approval_status }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: DISTRICTS & CLUBS -->
+            <div class="tab-pane fade" id="tab-districts">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="jk-card p-4">
+                            <h5 class="mb-3">Add District Association</h5>
+                            <form method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="add_district">
+                                <div class="mb-2"><input type="text" name="name" class="form-control" placeholder="District Name (e.g. Jammu)" required></div>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6"><input type="text" name="code" class="form-control" placeholder="Code (e.g. JMU)" maxlength="10" required></div>
+                                    <div class="col-6">
+                                        <select name="division" class="form-select">
+                                            <option value="JAMMU">Jammu Division</option>
+                                            <option value="KASHMIR">Kashmir Division</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3"><input type="text" name="secretary_name" class="form-control" placeholder="District Secretary Name"></div>
+                                <button class="btn btn-jk-navy w-100">Add District</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="jk-card p-4">
+                            <h5 class="mb-3">Add Affiliated Club</h5>
+                            <form method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="add_club">
+                                <div class="mb-2"><input type="text" name="name" class="form-control" placeholder="Club / Academy Name" required></div>
+                                <div class="mb-2">
+                                    <select name="district_id" class="form-select" required>
+                                        <option value="">-- Select District --</option>
+                                        {% for d in districts %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3"><input type="text" name="head_coach" class="form-control" placeholder="Head Coach / Secretary"></div>
+                                <button class="btn btn-jk-gold w-100">Add Club</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: TOURNAMENTS & FIXTURES -->
+            <div class="tab-pane fade" id="tab-tournaments">
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="jk-card p-4">
+                            <h5 class="mb-3">Create New Tournament</h5>
+                            <form method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="create_tournament">
+                                <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Tournament Title" required></div>
+                                <div class="mb-2"><input type="text" name="venue" class="form-control" placeholder="Venue (e.g. MA Stadium Indoor Hall, Jammu)" required></div>
+                                <div class="mb-2">
+                                    <select name="level" class="form-select">
+                                        <option value="STATE">State / UT Championship</option>
+                                        <option value="DISTRICT">District Championship</option>
+                                        <option value="OPEN">Open Ranking Tournament</option>
+                                    </select>
+                                </div>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-4"><label class="small">Start</label><input type="date" name="start_date" class="form-control" required></div>
+                                    <div class="col-4"><label class="small">End</label><input type="date" name="end_date" class="form-control" required></div>
+                                    <div class="col-4"><label class="small">Deadline</label><input type="date" name="registration_deadline" class="form-control" required></div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-8"><input type="text" name="category_name" class="form-control" value="Men's Open Singles" required></div>
+                                    <div class="col-4">
+                                        <select name="category_gender" class="form-select">
+                                            <option value="OPEN">Open</option>
+                                            <option value="MALE">Male</option>
+                                            <option value="FEMALE">Female</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-jk-navy w-100">Publish Tournament</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="jk-card p-4">
+                            <h5 class="mb-3">Manage Tournaments, Excel Rosters &amp; Fixtures</h5>
+                            {% for t in tournaments %}
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ t.title }}</strong>
+                                    <a href="{{ url_for('download_tournament_excel', tournament_id=t.id) }}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-file-earmark-excel me-1"></i>Download .xlsx Roster
+                                    </a>
+                                </div>
+                                {% for cat in t.categories %}
+                                <div class="d-flex justify-content-between align-items-center small bg-light p-2 rounded mt-1">
+                                    <span>{{ cat.name }} ({{ cat.registrations|length }} players)</span>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="action" value="generate_fixtures">
+                                        <input type="hidden" name="category_id" value="{{ cat.id }}">
+                                        <button class="btn btn-sm btn-jk-gold">Generate Knockout Fixtures</button>
+                                    </form>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No tournaments created yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: MATCH SCORING & ELO -->
+            <div class="tab-pane fade" id="tab-matches">
+                <div class="jk-card p-4">
+                    <h5 class="mb-3">Match Score Verification (Auto-Updates Elo &amp; Association Points)</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Round</th><th>Player 1</th><th>Player 2</th><th>Set Scores (e.g. 11-8, 11-6, 11-9)</th><th>Verify Winner</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for m in open_matches %}
+                                <tr>
+                                    <td>{{ m.round_name }}</td>
+                                    <td>{{ m.player1.full_name if m.player1 else 'TBD' }}</td>
+                                    <td>{{ m.player2.full_name if m.player2 else 'TBD' }}</td>
+                                    <td colspan="2">
+                                        {% if m.is_verified %}
+                                            <span class="badge bg-success">Verified Winner: {{ m.winner.full_name if m.winner else 'Bye' }}</span>
+                                        {% elif m.player1 and m.player2 %}
+                                            <form method="post" class="row g-2">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="hidden" name="action" value="verify_match">
+                                                <input type="hidden" name="match_id" value="{{ m.id }}">
+                                                <div class="col-5"><input type="text" name="score_summary" class="form-control form-control-sm" placeholder="11-7, 11-9, 11-5" required></div>
+                                                <div class="col-4">
+                                                    <select name="winner_id" class="form-select form-select-sm" required>
+                                                        <option value="{{ m.player1_id }}">{{ m.player1.full_name }}</option>
+                                                        <option value="{{ m.player2_id }}">{{ m.player2.full_name }}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-3"><button class="btn btn-sm btn-jk-navy w-100">Verify</button></div>
+                                            </form>
+                                        {% else %}
+                                            <span class="text-muted small">Awaiting players</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="text-center text-muted py-3">No matches scheduled yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: NEWS & GALLERY -->
+            <div class="tab-pane fade" id="tab-media">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="jk-card p-4">
+                            <h5 class="mb-3">Publish News / Circular</h5>
+                            <form method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="publish_news">
+                                <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Article Headline" required></div>
+                                <div class="mb-2"><input type="text" name="category_name" class="form-control" value="Official Circular" required></div>
+                                <div class="mb-2"><input type="text" name="summary" class="form-control" placeholder="Short Summary" required></div>
+                                <div class="mb-2"><textarea name="content" rows="4" class="form-control" placeholder="Full Article Text" required></textarea></div>
+                                <div class="mb-3"><input type="file" name="featured_image" accept=".jpg,.jpeg,.png,.webp" class="form-control"></div>
+                                <button class="btn btn-jk-navy w-100">Publish Article</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="jk-card p-4">
+                            <h5 class="mb-3">Upload Photo Album to Gallery</h5>
+                            <form method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="upload_gallery">
+                                <div class="mb-2"><input type="text" name="title" class="form-control" placeholder="Album Title" required></div>
+                                <div class="mb-2">
+                                    <select name="category" class="form-select">
+                                        <option value="TOURNAMENT">Tournament</option>
+                                        <option value="TRAINING_CAMP">Training Camp</option>
+                                        <option value="AWARD_CEREMONY">Award Ceremony</option>
+                                        <option value="ASSOCIATION_EVENT">Association Event</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2"><input type="url" name="video_url" class="form-control" placeholder="Optional YouTube Highlight URL"></div>
+                                <div class="mb-3"><input type="file" name="photos" accept=".jpg,.jpeg,.png,.webp" multiple class="form-control" required></div>
+                                <button class="btn btn-jk-gold w-100">Create Album &amp; Upload</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: SECRETARIAT SETTINGS -->
+            <div class="tab-pane fade" id="tab-settings">
+                <div class="jk-card p-4">
+                    <h5 class="mb-3">Update Official Association Details (No Hardcoded Placeholders)</h5>
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="action" value="update_settings">
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label small fw-bold">Official Email</label><input type="email" name="contact_email" value="{{ jktta.CONTACT_EMAIL }}" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small fw-bold">Official Phone</label><input type="text" name="contact_phone" value="{{ jktta.CONTACT_PHONE }}" class="form-control"></div>
+                            <div class="col-12"><label class="form-label small fw-bold">Secretariat Address</label><input type="text" name="office_address" value="{{ jktta.OFFICE_ADDRESS }}" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small fw-bold">President Name</label><input type="text" name="president_name" value="{{ jktta.PRESIDENT_NAME }}" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small fw-bold">General Secretary Name</label><input type="text" name="secretary_name" value="{{ jktta.SECRETARY_NAME }}" class="form-control"></div>
+                            <div class="col-md-6"><label class="form-label small fw-bold">President's Message</label><textarea name="president_message" rows="3" class="form-control">{{ jktta.PRESIDENT_MESSAGE }}</textarea></div>
+                            <div class="col-md-6"><label class="form-label small fw-bold">Secretary's Message</label><textarea name="secretary_message" rows="3" class="form-control">{{ jktta.SECRETARY_MESSAGE }}</textarea></div>
+                            <div class="col-12"><label class="form-label small fw-bold">About JKTTA History</label><textarea name="about_history" rows="3" class="form-control">{{ jktta.ABOUT_HISTORY }}</textarea></div>
+                            <div class="col-12"><button class="btn btn-jk-navy">Save Secretariat Information</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
