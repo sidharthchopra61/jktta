@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Edit Player Profile | {{ jktta.SHORT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="jk-section">
+    <div class="container" style="max-width: 760px;">
+        <div class="jk-card p-4 p-md-5">
+            <h3 class="mb-3">Edit Player Profile</h3>
+            <form method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Full Name</label>
+                        <input type="text" name="full_name" value="{{ player.full_name }}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Mobile</label>
+                        <input type="text" name="mobile" value="{{ player.mobile }}" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Affiliated Club</label>
+                        <select name="club_id" class="form-select">
+                            <option value="">Independent</option>
+                            {% for c in clubs %}
+                            <option value="{{ c.id }}" {% if player.club_id == c.id %}selected{% endif %}>{{ c.name }} ({{ c.district.name }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Playing Category</label>
+                        <select name="playing_category" class="form-select">
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if player.playing_category == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Address</label>
+                        <textarea name="address" rows="2" class="form-control" required>{{ player.address }}</textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Update Photo</label>
+                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Update Supporting Document</label>
+                        <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png" class="form-control">
+                    </div>
+                    <div class="col-12 d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-jk-gold">Save Changes</button>
+                        <a href="{{ url_for('player_dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
